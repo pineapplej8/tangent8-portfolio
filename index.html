@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tangent_8 — Roblox Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--black:#060606;--white:#f0ede8;--dim:rgba(240,237,232,0.45);--border:rgba(240,237,232,0.1);--serif:'Playfair Display',Georgia,serif;--mono:'DM Mono',monospace;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:var(--mono);font-weight:300;overflow-x:hidden;cursor:none;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:0.055;pointer-events:none;z-index:9998;}
+#cursor{position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);}
+#cursor svg{display:block;transition:transform 0.15s;}
+#intro{position:fixed;inset:0;z-index:5000;background:var(--black);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#intro-canvas{position:absolute;inset:0;width:100%;height:100%;}
+#intro-text{position:relative;z-index:2;text-align:center;opacity:0;transition:opacity 0.6s;}
+#intro-text .i-label{font-size:0.6rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;}
+#intro-text .i-name{font-family:var(--serif);font-size:clamp(2.5rem,8vw,6rem);font-weight:900;color:var(--white);letter-spacing:-0.02em;}
+#intro.fade-out{opacity:0;transition:opacity 0.8s ease;}
+#intro.hidden{display:none;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 3rem;border-bottom:0.5px solid var(--border);backdrop-filter:blur(8px);background:rgba(6,6,6,0.75);}
+.nav-logo{font-family:var(--serif);font-size:1rem;color:var(--white);text-decoration:none;}
+.nav-links{display:flex;gap:2.5rem;list-style:none;}
+.nav-links a{font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color 0.3s;cursor:none;}
+.nav-links a:hover{color:var(--white);}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 3rem 5rem;position:relative;overflow:hidden;}
+#hero-orb-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);}
+.hero-orb{width:520px;height:520px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 40%,transparent 70%);border:0.5px solid rgba(240,237,232,0.07);animation:breathe 8s ease-in-out infinite;transition:box-shadow 0.4s,border-color 0.4s;position:relative;}
+.hero-orb::after{content:'';position:absolute;inset:20px;border-radius:50%;border:0.5px solid rgba(240,237,232,0.04);}
+.hero-orb.glow{border-color:rgba(240,237,232,0.28);box-shadow:0 0 60px 20px rgba(240,237,232,0.06),0 0 120px 60px rgba(240,237,232,0.03);}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.04);opacity:1;}}
+.hero-label{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:1.5rem;}
+.hero-title{font-family:var(--serif);font-size:clamp(4rem,10vw,9rem);font-weight:900;line-height:0.92;letter-spacing:-0.02em;color:var(--white);margin-bottom:3rem;}
+.hero-title em{font-style:italic;font-weight:400;color:var(--dim);}
+.hero-sub{display:flex;gap:4rem;align-items:flex-end;}
+.hero-desc{font-size:0.75rem;line-height:1.8;color:var(--dim);max-width:280px;letter-spacing:0.03em;}
+.hero-scroll{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(240,237,232,0.2);writing-mode:vertical-rl;margin-left:auto;}
+section{padding:7rem 3rem;border-top:0.5px solid var(--border);}
+.section-num{font-size:0.6rem;letter-spacing:0.2em;color:rgba(240,237,232,0.2);margin-bottom:4rem;display:block;text-transform:uppercase;}
+.section-title{font-family:var(--serif);font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;line-height:1.05;margin-bottom:3rem;letter-spacing:-0.01em;}
+.section-title em{font-style:italic;font-weight:400;color:var(--dim);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start;}
+.about-text{font-size:0.82rem;line-height:2;color:var(--dim);letter-spacing:0.02em;}
+.about-text p+p{margin-top:1.5rem;}
+.stat-list{display:flex;flex-direction:column;gap:2rem;}
+.stat-item{border-top:0.5px solid var(--border);padding-top:1.5rem;}
+.stat-num{font-family:var(--serif);font-size:3rem;font-weight:900;line-height:1;color:var(--white);margin-bottom:0.4rem;}
+.stat-label{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);}
+.projects-list{display:flex;flex-direction:column;}
+.project-row{border-top:0.5px solid var(--border);overflow:hidden;}
+.project-row:last-child{border-bottom:0.5px solid var(--border);}
+.project-header{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:2rem;padding:2rem 0;cursor:none;}
+.project-header:hover .project-name{color:var(--white);}
+.project-num{font-size:0.6rem;letter-spacing:0.15em;color:rgba(240,237,232,0.2);}
+.project-name{font-family:var(--serif);font-size:1.8rem;font-weight:700;color:rgba(240,237,232,0.8);transition:color 0.3s;margin-bottom:0.35rem;}
+.project-tags{display:flex;gap:0.8rem;flex-wrap:wrap;}
+.tag{font-size:0.58rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(240,237,232,0.3);border:0.5px solid rgba(240,237,232,0.12);padding:0.2rem 0.55rem;border-radius:2px;}
+.project-toggle{font-size:1.1rem;color:var(--dim);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);}
+.project-toggle.open{transform:rotate(45deg);}
+.project-expand{max-height:0;overflow:hidden;transition:max-height 0.7s cubic-bezier(0.16,1,0.3,1);}
+.project-expand.open{max-height:800px;}
+.project-showcase{display:grid;grid-template-columns:160px 1fr;gap:2.5rem;padding:0 0 3rem 80px;align-items:start;}
+.game-icon-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+.game-icon{width:140px;height:140px;border-radius:14px;background:rgba(240,237,232,0.04);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.game-icon img{width:100%;height:100%;object-fit:cover;border-radius:13px;}
+.game-link{font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:0.5px solid var(--border);padding:0.5rem 1rem;transition:border-color 0.3s,color 0.3s;cursor:none;}
+.game-link:hover{border-color:rgba(240,237,232,0.4);color:var(--white);}
+.game-thumbnails{display:flex;gap:0.8rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.thumb{width:190px;height:108px;border-radius:8px;background:rgba(240,237,232,0.04);border:0.5px solid var(--border);overflow:hidden;cursor:none;transition:border-color 0.3s;}
+.thumb:hover{border-color:rgba(240,237,232,0.3);}
+.thumb img{width:100%;height:100%;object-fit:cover;}
+.thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:rgba(240,237,232,0.2);letter-spacing:0.1em;text-transform:uppercase;}
+.game-desc{font-size:0.75rem;line-height:1.9;color:var(--dim);letter-spacing:0.02em;max-width:480px;}
+
+/* WORKS */
+.works-tabs{display:flex;gap:0;margin-bottom:3rem;border-bottom:0.5px solid var(--border);}
+.works-tab{font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);padding:0.9rem 2rem;cursor:none;border-bottom:1px solid transparent;transition:color 0.25s,border-color 0.25s;position:relative;top:1px;}
+.works-tab:hover{color:var(--white);}
+.works-tab.active{color:var(--white);border-bottom:1px solid var(--white);}
+.works-tab-count{font-size:0.5rem;opacity:0.4;margin-left:0.5rem;}
+.works-panel{display:none;}
+.works-panel.active{display:block;animation:panelIn 0.4s cubic-bezier(0.16,1,0.3,1);}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.icons-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.icon-slot{aspect-ratio:1;border-radius:14px;background:rgba(240,237,232,0.03);border:0.5px solid var(--border);overflow:hidden;cursor:none;position:relative;transition:border-color 0.25s,transform 0.25s;}
+.icon-slot:hover{border-color:rgba(240,237,232,0.35);transform:scale(1.03);}
+.icon-slot img{width:100%;height:100%;object-fit:cover;border-radius:13px;}
+.slot-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6rem;}
+.slot-placeholder-icon{width:28px;height:28px;border:0.5px solid rgba(240,237,232,0.15);border-radius:6px;}
+.slot-placeholder-label{font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(240,237,232,0.18);}
+.icon-slot-num{position:absolute;top:8px;left:10px;font-size:0.5rem;letter-spacing:0.1em;color:rgba(240,237,232,0.2);}
+.thumbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.thumb-slot{border-radius:10px;background:rgba(240,237,232,0.03);border:0.5px solid var(--border);overflow:hidden;cursor:none;transition:border-color 0.25s,transform 0.25s;position:relative;display:flex;align-items:center;justify-content:center;}
+.thumb-slot:hover{border-color:rgba(240,237,232,0.35);transform:scale(1.015);}
+.thumb-slot img{width:100%;height:auto;display:block;object-fit:contain;}
+.models-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.model-slot{border-radius:10px;background:rgba(240,237,232,0.03);border:0.5px solid var(--border);overflow:hidden;cursor:none;position:relative;transition:border-color 0.25s,transform 0.25s;}
+.model-slot:hover{border-color:rgba(240,237,232,0.35);transform:scale(1.015);}
+.model-slot img{width:100%;height:100%;object-fit:cover;}
+.model-slot:nth-child(1),.model-slot:nth-child(2){height:260px;}
+.model-slot:nth-child(3),.model-slot:nth-child(4){height:220px;}
+.slot-label-bar{position:absolute;bottom:0;left:0;right:0;padding:0.7rem 1rem;background:linear-gradient(transparent,rgba(6,6,6,0.7));font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(240,237,232,0.5);}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;z-index:500;background:rgba(6,6,6,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.35s;}
+.lightbox.active{opacity:1;pointer-events:all;}
+.lightbox-img{max-width:84vw;max-height:84vh;border-radius:6px;border:0.5px solid var(--border);display:block;}
+.lightbox-placeholder{width:560px;height:360px;border-radius:8px;background:rgba(240,237,232,0.04);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);}
+.lightbox-close{position:absolute;top:2rem;right:2.5rem;font-size:1.3rem;color:var(--dim);cursor:none;transition:color 0.2s;}
+.lightbox-close:hover{color:var(--white);}
+.lightbox-meta{position:absolute;bottom:2.5rem;display:flex;align-items:center;gap:2rem;}
+.lightbox-label{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,237,232,0.3);}
+.lightbox-nav{display:flex;gap:1rem;}
+.lightbox-nav button{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);background:none;border:0.5px solid var(--border);padding:0.4rem 0.9rem;cursor:none;transition:color 0.2s,border-color 0.2s;}
+.lightbox-nav button:hover{color:var(--white);border-color:rgba(240,237,232,0.4);}
+
+/* CONTACT */
+.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
+.contact-text{font-size:0.8rem;line-height:2;color:var(--dim);}
+.contact-links{display:flex;flex-direction:column;gap:1.2rem;}
+.contact-link{display:flex;align-items:center;gap:1.5rem;padding:1.5rem;border:0.5px solid var(--border);text-decoration:none;color:var(--white);transition:border-color 0.3s,background 0.3s;cursor:none;}
+.contact-link:hover{border-color:rgba(240,237,232,0.35);background:rgba(240,237,232,0.03);}
+.contact-link-icon{font-size:1rem;opacity:0.4;}
+.contact-link-info{flex:1;}
+.contact-link-platform{font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);margin-bottom:0.3rem;}
+.contact-link-name{font-family:var(--serif);font-size:1.1rem;font-weight:700;}
+.contact-link-arrow{opacity:0.25;font-size:0.9rem;}
+footer{padding:2rem 3rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+footer span{font-size:0.6rem;letter-spacing:0.12em;color:rgba(240,237,232,0.18);text-transform:uppercase;}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);}
+.reveal.visible{opacity:1;transform:none;}
+@media(max-width:768px){
+  nav{padding:1.2rem 1.5rem;} .nav-links{gap:1.2rem;}
+  .hero{padding:0 1.5rem 4rem;} section{padding:5rem 1.5rem;}
+  .about-grid,.contact-inner{grid-template-columns:1fr;gap:3rem;}
+  .project-showcase{grid-template-columns:1fr;padding-left:0;}
+  .icons-grid{grid-template-columns:repeat(2,1fr);}
+  .thumbs-grid,.models-grid{grid-template-columns:1fr;}
+  .thumb-slot:nth-child(1){height:220px;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="0" x2="11" y2="22" stroke="rgba(240,237,232,0.9)" stroke-width="1"/><line x1="0" y1="11" x2="22" y2="11" stroke="rgba(240,237,232,0.9)" stroke-width="1"/><circle cx="11" cy="11" r="1.5" fill="rgba(240,237,232,0.9)"/></svg>
+</div>
+
+<div id="intro">
+  <canvas id="intro-canvas"></canvas>
+  <div id="intro-text">
+    <div class="i-label">Roblox Developer — 2026</div>
+    <div class="i-name">Tangent_8</div>
+  </div>
+</div>
+
+<nav>
+  <a href="#top" class="nav-logo">Tangent_8</a>
+  <ul class="nav-links">
+    <li><a onclick="smoothScroll('about')">About</a></li>
+    <li><a onclick="smoothScroll('projects')">Projects</a></li>
+    <li><a onclick="smoothScroll('works')">Works</a></li>
+    <li><a onclick="smoothScroll('contact')">Contact</a></li>
+  </ul>
+</nav>
+
+<div id="top" class="hero">
+  <div id="hero-orb-wrap"><div class="hero-orb" id="heroOrb"></div></div>
+  <p class="hero-label">Roblox Developer Portfolio — 2026</p>
+  <h1 class="hero-title">Roblox<br><em>Dev.</em><br>Portfolio</h1>
+  <div class="hero-sub">
+    <p class="hero-desc">Building immersive Roblox experiences through scripting, UI design, and world-building. Open for commissions and collabs.</p>
+    <span class="hero-scroll">Scroll to explore ↓</span>
+  </div>
+</div>
+
+<section id="about">
+  <span class="section-num reveal">01 — About</span>
+  <div class="about-grid">
+    <div>
+      <h2 class="section-title reveal">Who I<br><em>am.</em></h2>
+      <div class="about-text reveal">
+        <p>I'm Tangent_8 — a Roblox developer focused on creating polished, well-scripted experiences. Whether it's tight Lua logic, clean UI, or detailed environments, I care about the craft at every level.</p>
+        <p>Available for commissions, team projects, and collaborations. I work fast, communicate clearly, and deliver.</p>
+      </div>
+    </div>
+    <div class="stat-list reveal">
+      <div class="stat-item"><div class="stat-num">3+</div><div class="stat-label">Years developing on Roblox</div></div>
+      <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label">Projects completed</div></div>
+      <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Hours in Studio</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <span class="section-num reveal">02 — Projects</span>
+  <h2 class="section-title reveal">Selected<br><em>work.</em></h2>
+  <div class="projects-list reveal">
+
+    <!-- PROJECT 1: MOG OFF -->
+    <div class="project-row">
+      <div class="project-header" onclick="toggleProject(this)">
+        <span class="project-num">001</span>
+        <div><div class="project-name">MOG OFF 🗿 [ALPHA]</div><div class="project-tags"><span class="tag">Lua scripting</span><span class="tag">UI design</span></div></div>
+        <span class="project-toggle">+</span>
+      </div>
+      <div class="project-expand">
+        <div class="project-showcase">
+          <div class="game-icon-wrap">
+            <div class="game-icon"><img src="https://media.discordapp.net/attachments/737759686605930578/1513366200174776491/Untitled_Artwork_15.png?ex=6a27779b&is=6a26261b&hm=3531a6b1ba11952d86db93d02da4b07206c6d802daa3554892745bd12a6f8e99&=&format=webp&quality=lossless&width=700&height=700" alt="MOG OFF icon"></div>
+            <a class="game-link" href="https://www.roblox.com/games/124004151750716/MOG-OFF" target="_blank">Play →</a>
+          </div>
+          <div class="game-right">
+            <div class="game-thumbnails">
+              <div class="thumb"><img src="https://media.discordapp.net/attachments/737759686605930578/1513364735972610208/image.png?ex=6a27763e&is=6a2624be&hm=28986b88dd57d053aecbba734b0fd832284720d7d98000b0f7ac4630b06d7d58&=&format=webp&quality=lossless&width=800&height=448" alt="MOG OFF thumbnail"></div>
+            </div>
+            <p class="game-desc">Competitive precision and aim. Ranked and Casual 1v1 gamemodes testing your skills.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT 2: JUDGES -->
+    <div class="project-row">
+      <div class="project-header" onclick="toggleProject(this)">
+        <span class="project-num">002</span>
+        <div><div class="project-name">JUDGES 🔊 [VC]</div><div class="project-tags"><span class="tag">Building</span><span class="tag">Game design</span></div></div>
+        <span class="project-toggle">+</span>
+      </div>
+      <div class="project-expand">
+        <div class="project-showcase">
+          <div class="game-icon-wrap">
+            <div class="game-icon"><img src="https://media.discordapp.net/attachments/737759686605930578/1513372786851188806/image.png?ex=6a277dbd&is=6a262c3d&hm=e046023b9919050dea4712c894c06cc74d2d949d2a70bf92e08a41a1211f1454&=&format=webp&quality=lossless&width=1116&height=1120" alt="Judges icon"></div>
+            <a class="game-link" href="https://www.roblox.com/games/79005435828657/Judges" target="_blank">Play →</a>
+          </div>
+          <div class="game-right">
+            <div class="game-thumbnails">
+              <div class="thumb"><img src="https://media.discordapp.net/attachments/737759686605930578/1513373488369500176/image.png?ex=6a277e64&is=6a262ce4&hm=24897e1f67472be1a79c4264347b89304fc19f7cdd3ebd64cfad32b57b724231&=&format=webp&quality=lossless&width=2616&height=1436" alt="Judges thumbnail"></div>
+            </div>
+            <p class="game-desc">Voice Chat socialization game, aimed at curating competitions amongst players to showcase their talent and creativity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT 3: GO TO SLEEP -->
+    <div class="project-row">
+      <div class="project-header" onclick="toggleProject(this)">
+        <span class="project-num">003</span>
+        <div><div class="project-name">GO TO SLEEP</div><div class="project-tags"><span class="tag">Lua scripting</span><span class="tag">Building</span></div></div>
+        <span class="project-toggle">+</span>
+      </div>
+      <div class="project-expand">
+        <div class="project-showcase">
+          <div class="game-icon-wrap">
+            <div class="game-icon"><img src="https://media.discordapp.net/attachments/737759686605930578/1513374578049552525/image.png?ex=6a277f68&is=6a262de8&hm=012e77b1471a871e246c5e47c1bb379521cabe688bddf852e01355ad1cf43a01&=&format=webp&quality=lossless&width=940&height=932" alt="Go To Sleep icon"></div>
+            <a class="game-link" href="https://www.roblox.com/games/106554578113682/Go-To-Sleep" target="_blank">Play →</a>
+          </div>
+          <div class="game-right">
+            <div class="game-thumbnails">
+              <div class="thumb"><img src="https://media.discordapp.net/attachments/737759686605930578/1513373771237687507/image.png?ex=6a277ea8&is=6a262d28&hm=05f600b8acaf425c2d164143e83eb37e28ffd66ab55e29a05e7ef775914896aa&=&format=webp&quality=lossless&width=2548&height=1428" alt="Go To Sleep thumbnail"></div>
+            </div>
+            <p class="game-desc">A short horror game. Inspired by Go To Bed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DISPLAY OF WORKS -->
+<section id="works">
+  <span class="section-num reveal">03 — Display of works</span>
+  <h2 class="section-title reveal">Visual<br><em>showcase.</em></h2>
+  <div class="works-tabs reveal">
+    <div class="works-tab active" onclick="switchTab('icons',this)">Game Icons <span class="works-tab-count">06</span></div>
+    <div class="works-tab" onclick="switchTab('thumbs',this)">Thumbnails <span class="works-tab-count">04</span></div>
+    <div class="works-tab" onclick="switchTab('ui',this)">UI Design <span class="works-tab-count">08</span></div>
+    <div class="works-tab" onclick="switchTab('models',this)">Modeling <span class="works-tab-count">10</span></div>
+  </div>
+
+  <!-- ICONS -->
+  <div class="works-panel active" id="panel-icons">
+    <div class="icons-grid">
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513372912227324005/image.png?ex=6a277ddb&is=6a262c5b&hm=bae811151b6e647a4722b3907f74266291262a5f21614bb595737b3d071fca52&=&format=webp&quality=lossless&width=1464&height=1452','Icon — 01',getIconSlots(),0)">
+        <span class="icon-slot-num">01</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513372912227324005/image.png?ex=6a277ddb&is=6a262c5b&hm=bae811151b6e647a4722b3907f74266291262a5f21614bb595737b3d071fca52&=&format=webp&quality=lossless&width=1464&height=1452" alt="Icon 01">
+      </div>
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513372786851188806/image.png?ex=6a277dbd&is=6a262c3d&hm=e046023b9919050dea4712c894c06cc74d2d949d2a70bf92e08a41a1211f1454&=&format=webp&quality=lossless&width=1116&height=1120','Icon — 02',getIconSlots(),1)">
+        <span class="icon-slot-num">02</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513372786851188806/image.png?ex=6a277dbd&is=6a262c3d&hm=e046023b9919050dea4712c894c06cc74d2d949d2a70bf92e08a41a1211f1454&=&format=webp&quality=lossless&width=1116&height=1120" alt="Icon 02">
+      </div>
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513372670832672908/image.png?ex=6a277da1&is=6a262c21&hm=6bf853156e965be958034b9d59898b5746049a34c39fcb69ce9dd669cdd18d67&=&format=webp&quality=lossless&width=1556&height=1548','Icon — 03',getIconSlots(),2)">
+        <span class="icon-slot-num">03</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513372670832672908/image.png?ex=6a277da1&is=6a262c21&hm=6bf853156e965be958034b9d59898b5746049a34c39fcb69ce9dd669cdd18d67&=&format=webp&quality=lossless&width=1556&height=1548" alt="Icon 03">
+      </div>
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513372607796478074/image.png?ex=6a277d92&is=6a262c12&hm=fd4b92b11ec5a596b61e3ad46c11964447e1c35256ccfb8b42849ee8a4deb2c7&=&format=webp&quality=lossless&width=1548&height=1540','Icon — 04',getIconSlots(),3)">
+        <span class="icon-slot-num">04</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513372607796478074/image.png?ex=6a277d92&is=6a262c12&hm=fd4b92b11ec5a596b61e3ad46c11964447e1c35256ccfb8b42849ee8a4deb2c7&=&format=webp&quality=lossless&width=1548&height=1540" alt="Icon 04">
+      </div>
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513372537227051099/image.png?ex=6a277d81&is=6a262c01&hm=1f805a5165d4781499172a443aea697b0d152bace2705f834e6f2d2953a7796f&=&format=webp&quality=lossless&width=1552&height=1544','Icon — 05',getIconSlots(),4)">
+        <span class="icon-slot-num">05</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513372537227051099/image.png?ex=6a277d81&is=6a262c01&hm=1f805a5165d4781499172a443aea697b0d152bace2705f834e6f2d2953a7796f&=&format=webp&quality=lossless&width=1552&height=1544" alt="Icon 05">
+      </div>
+      <div class="icon-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513366200174776491/Untitled_Artwork_15.png?ex=6a27779b&is=6a26261b&hm=3531a6b1ba11952d86db93d02da4b07206c6d802daa3554892745bd12a6f8e99&=&format=webp&quality=lossless&width=700&height=700','Icon — 06',getIconSlots(),5)">
+        <span class="icon-slot-num">06</span>
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513366200174776491/Untitled_Artwork_15.png?ex=6a27779b&is=6a26261b&hm=3531a6b1ba11952d86db93d02da4b07206c6d802daa3554892745bd12a6f8e99&=&format=webp&quality=lossless&width=700&height=700" alt="Icon 06">
+      </div>
+    </div>
+  </div>
+
+  <!-- THUMBNAILS -->
+  <div class="works-panel" id="panel-thumbs">
+    <div class="thumbs-grid">
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513364735972610208/image.png?ex=6a27763e&is=6a2624be&hm=28986b88dd57d053aecbba734b0fd832284720d7d98000b0f7ac4630b06d7d58&=&format=webp&quality=lossless&width=800&height=448','Thumbnail — 01',getThumbSlots(),0)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513364735972610208/image.png?ex=6a27763e&is=6a2624be&hm=28986b88dd57d053aecbba734b0fd832284720d7d98000b0f7ac4630b06d7d58&=&format=webp&quality=lossless&width=800&height=448" alt="Thumbnail 01">
+        <div class="slot-label-bar">Thumbnail 01</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513373488369500176/image.png?ex=6a277e64&is=6a262ce4&hm=24897e1f67472be1a79c4264347b89304fc19f7cdd3ebd64cfad32b57b724231&=&format=webp&quality=lossless&width=2616&height=1436','Thumbnail — 02',getThumbSlots(),1)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513373488369500176/image.png?ex=6a277e64&is=6a262ce4&hm=24897e1f67472be1a79c4264347b89304fc19f7cdd3ebd64cfad32b57b724231&=&format=webp&quality=lossless&width=2616&height=1436" alt="Thumbnail 02">
+        <div class="slot-label-bar">Thumbnail 02</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513373771237687507/image.png?ex=6a277ea8&is=6a262d28&hm=05f600b8acaf425c2d164143e83eb37e28ffd66ab55e29a05e7ef775914896aa&=&format=webp&quality=lossless&width=2548&height=1428','Thumbnail — 03',getThumbSlots(),2)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513373771237687507/image.png?ex=6a277ea8&is=6a262d28&hm=05f600b8acaf425c2d164143e83eb37e28ffd66ab55e29a05e7ef775914896aa&=&format=webp&quality=lossless&width=2548&height=1428" alt="Thumbnail 03">
+        <div class="slot-label-bar">Thumbnail 03</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513374074020040764/image.png?ex=6a277ef0&is=6a262d70&hm=51fa87b1bdaf51f1d99ce26965fa9584ea13cffcbdc228347598bcdc9d0df329&=&format=webp&quality=lossless&width=2548&height=1428','Thumbnail — 04',getThumbSlots(),3)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513374074020040764/image.png?ex=6a277ef0&is=6a262d70&hm=51fa87b1bdaf51f1d99ce26965fa9584ea13cffcbdc228347598bcdc9d0df329&=&format=webp&quality=lossless&width=2548&height=1428" alt="Thumbnail 04">
+        <div class="slot-label-bar">Thumbnail 04</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI DESIGN -->
+  <div class="works-panel" id="panel-ui">
+    <div class="thumbs-grid">
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378266898104420/3da64fb2d9ce59c175d9d449d13cb692.png?ex=6a2782d8&is=6a263158&hm=9f512b6cb4758406c9410d7cb0b8e2968b3df1df04495b0d9d2429dd92ef9cb9&=&format=webp&quality=lossless&width=2048&height=1186','UI Design — 01',getUISlots(),0)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378266898104420/3da64fb2d9ce59c175d9d449d13cb692.png?ex=6a2782d8&is=6a263158&hm=9f512b6cb4758406c9410d7cb0b8e2968b3df1df04495b0d9d2429dd92ef9cb9&=&format=webp&quality=lossless&width=2048&height=1186" alt="UI Design 01">
+        <div class="slot-label-bar">UI Design — 01</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378385299111946/f87dbf0377dff92748d30e2477b6fbd2.png?ex=6a2782f4&is=6a263174&hm=8e58b0b99cb049330daa0d3142bba08a2b2fa13163d0f75b3587f20b3a2f29e2&=&format=webp&quality=lossless&width=2048&height=1110','UI Design — 02',getUISlots(),1)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378385299111946/f87dbf0377dff92748d30e2477b6fbd2.png?ex=6a2782f4&is=6a263174&hm=8e58b0b99cb049330daa0d3142bba08a2b2fa13163d0f75b3587f20b3a2f29e2&=&format=webp&quality=lossless&width=2048&height=1110" alt="UI Design 02">
+        <div class="slot-label-bar">UI Design — 02</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378312913944710/9fba8896b628354569dee02135e7d998.png?ex=6a2782e3&is=6a263163&hm=9fa1ded691227fc262b9e7eba48c178530385f614eadf27929f7c91f1ef7f1d7&=&format=webp&quality=lossless&width=2048&height=1114','UI Design — 03',getUISlots(),2)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378312913944710/9fba8896b628354569dee02135e7d998.png?ex=6a2782e3&is=6a263163&hm=9fa1ded691227fc262b9e7eba48c178530385f614eadf27929f7c91f1ef7f1d7&=&format=webp&quality=lossless&width=2048&height=1114" alt="UI Design 03">
+        <div class="slot-label-bar">UI Design — 03</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378352449327174/4dd239c00fa822c891836099e9a10565.png?ex=6a2782ec&is=6a26316c&hm=5a021c48e556cfc3ea3afbbd447631987e875a3dc3068d1ce1932a5a3cb66faf&=&format=webp&quality=lossless&width=2048&height=1106','UI Design — 04',getUISlots(),3)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378352449327174/4dd239c00fa822c891836099e9a10565.png?ex=6a2782ec&is=6a26316c&hm=5a021c48e556cfc3ea3afbbd447631987e875a3dc3068d1ce1932a5a3cb66faf&=&format=webp&quality=lossless&width=2048&height=1106" alt="UI Design 04">
+        <div class="slot-label-bar">UI Design — 04</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378408271319183/e15dd2b89a82e316895010ab0eb0ed2c.png?ex=6a2782f9&is=6a263179&hm=4c830d6e2726a0e3b96ee70c6486204071bf8d7d96688b95e7db88cc31f8c785&=&format=webp&quality=lossless&width=2046&height=1104','UI Design — 05',getUISlots(),4)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378408271319183/e15dd2b89a82e316895010ab0eb0ed2c.png?ex=6a2782f9&is=6a263179&hm=4c830d6e2726a0e3b96ee70c6486204071bf8d7d96688b95e7db88cc31f8c785&=&format=webp&quality=lossless&width=2046&height=1104" alt="UI Design 05">
+        <div class="slot-label-bar">UI Design — 05</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378526873649233/Screenshot_2026-06-07_at_11.02.50_PM.png?ex=6a278316&is=6a263196&hm=6b633c3ff9d4fe806ec061c5b40f278802c00b06ca5e17caa37186bf81bfe9b8&=&format=webp&quality=lossless&width=1882&height=1022','UI Design — 06',getUISlots(),5)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378526873649233/Screenshot_2026-06-07_at_11.02.50_PM.png?ex=6a278316&is=6a263196&hm=6b633c3ff9d4fe806ec061c5b40f278802c00b06ca5e17caa37186bf81bfe9b8&=&format=webp&quality=lossless&width=1882&height=1022" alt="UI Design 06">
+        <div class="slot-label-bar">UI Design — 06</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378525862953153/Screenshot_2026-06-07_at_11.03.23_PM.png?ex=6a278315&is=6a263195&hm=ce9ada467ac64ec96f32699f292959f69463ea3f2e3cabebf08ca5485fcd7d3d&=&format=webp&quality=lossless&width=1882&height=1024','UI Design — 07',getUISlots(),6)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378525862953153/Screenshot_2026-06-07_at_11.03.23_PM.png?ex=6a278315&is=6a263195&hm=ce9ada467ac64ec96f32699f292959f69463ea3f2e3cabebf08ca5485fcd7d3d&=&format=webp&quality=lossless&width=1882&height=1024" alt="UI Design 07">
+        <div class="slot-label-bar">UI Design — 07</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513378524399013928/Screenshot_2026-06-07_at_11.03.38_PM.png?ex=6a278315&is=6a263195&hm=edcee0b077602c4203671ad09dbc4f551d50bf6294c57964840921dac715503f&=&format=webp&quality=lossless&width=1882&height=1014','UI Design — 08',getUISlots(),7)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513378524399013928/Screenshot_2026-06-07_at_11.03.38_PM.png?ex=6a278315&is=6a263195&hm=edcee0b077602c4203671ad09dbc4f551d50bf6294c57964840921dac715503f&=&format=webp&quality=lossless&width=1882&height=1014" alt="UI Design 08">
+        <div class="slot-label-bar">UI Design — 08</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODELING -->
+  <div class="works-panel" id="panel-models">
+    <div class="thumbs-grid">
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381711659143198/image.png?ex=6a27860d&is=6a26348d&hm=7bdf37ee884474e78fa9ecb7f4ec45d838612bb92f77b69384019602fffa6411&=&format=webp&quality=lossless&width=2694&height=1294','Model — 01',getModelSlots(),0)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381711659143198/image.png?ex=6a27860d&is=6a26348d&hm=7bdf37ee884474e78fa9ecb7f4ec45d838612bb92f77b69384019602fffa6411&=&format=webp&quality=lossless&width=2694&height=1294" alt="Model 01">
+        <div class="slot-label-bar">Model — 01</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381712606920804/image.png?ex=6a27860d&is=6a26348d&hm=69b035d859e9506d2df2b5eef2f3740d08448269be3ab1e4220feb333b2e3da3&=&format=webp&quality=lossless&width=2694&height=1294','Model — 02',getModelSlots(),1)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381712606920804/image.png?ex=6a27860d&is=6a26348d&hm=69b035d859e9506d2df2b5eef2f3740d08448269be3ab1e4220feb333b2e3da3&=&format=webp&quality=lossless&width=2694&height=1294" alt="Model 02">
+        <div class="slot-label-bar">Model — 02</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381713383002132/image.png?ex=6a27860d&is=6a26348d&hm=b1482a3887da526d6dce034f9e1d1741fdf8035e979e51d06b61b25e90e8ceb9&=&format=webp&quality=lossless&width=2694&height=1294','Model — 03',getModelSlots(),2)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381713383002132/image.png?ex=6a27860d&is=6a26348d&hm=b1482a3887da526d6dce034f9e1d1741fdf8035e979e51d06b61b25e90e8ceb9&=&format=webp&quality=lossless&width=2694&height=1294" alt="Model 03">
+        <div class="slot-label-bar">Model — 03</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381714053959872/image.png?ex=6a27860d&is=6a26348d&hm=06941cc6261bfb181ee3a9950dc3f88717fc7ee9a06572c2fe6b53181d70c557&=&format=webp&quality=lossless&width=2694&height=1296','Model — 04',getModelSlots(),3)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381714053959872/image.png?ex=6a27860d&is=6a26348d&hm=06941cc6261bfb181ee3a9950dc3f88717fc7ee9a06572c2fe6b53181d70c557&=&format=webp&quality=lossless&width=2694&height=1296" alt="Model 04">
+        <div class="slot-label-bar">Model — 04</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381714817454161/image.png?ex=6a27860e&is=6a26348e&hm=b9edb0c31076acf41fbb235bac69017047c28fda378ac9eef2e1b8439e9c54e6&=&format=webp&quality=lossless&width=2694&height=1294','Model — 05',getModelSlots(),4)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381714817454161/image.png?ex=6a27860e&is=6a26348e&hm=b9edb0c31076acf41fbb235bac69017047c28fda378ac9eef2e1b8439e9c54e6&=&format=webp&quality=lossless&width=2694&height=1294" alt="Model 05">
+        <div class="slot-label-bar">Model — 05</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381715312246866/image.png?ex=6a27860e&is=6a26348e&hm=d4db07684bddea85216d32cb5179f22a1b53497168973dc2be0dcbfacb7e6ad5&=&format=webp&quality=lossless&width=2694&height=1296','Model — 06',getModelSlots(),5)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381715312246866/image.png?ex=6a27860e&is=6a26348e&hm=d4db07684bddea85216d32cb5179f22a1b53497168973dc2be0dcbfacb7e6ad5&=&format=webp&quality=lossless&width=2694&height=1296" alt="Model 06">
+        <div class="slot-label-bar">Model — 06</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381715907973210/image.png?ex=6a27860e&is=6a26348e&hm=b20e585942983b06278258d7d873b874475ede2b28d86aea99e5ac99dfac4dd3&=&format=webp&quality=lossless&width=2694&height=1298','Model — 07',getModelSlots(),6)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381715907973210/image.png?ex=6a27860e&is=6a26348e&hm=b20e585942983b06278258d7d873b874475ede2b28d86aea99e5ac99dfac4dd3&=&format=webp&quality=lossless&width=2694&height=1298" alt="Model 07">
+        <div class="slot-label-bar">Model — 07</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381716600033420/image.png?ex=6a27860e&is=6a26348e&hm=93bb57987832a36be1547a57a6eeb2f9f07a8f024a1f870628527cfcade6d415&=&format=webp&quality=lossless&width=2694&height=1292','Model — 08',getModelSlots(),7)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381716600033420/image.png?ex=6a27860e&is=6a26348e&hm=93bb57987832a36be1547a57a6eeb2f9f07a8f024a1f870628527cfcade6d415&=&format=webp&quality=lossless&width=2694&height=1292" alt="Model 08">
+        <div class="slot-label-bar">Model — 08</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381710602178781/Screenshot_2026-06-01_at_4.27.53_PM.png?ex=6a27860d&is=6a26348d&hm=591585e04a11c7ee38fd8fe4eba0eb4970b5a32a03ed861abf3f1b47e2d9ca0d&=&format=webp&quality=lossless&width=1658&height=1550','Model — 09',getModelSlots(),8)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381710602178781/Screenshot_2026-06-01_at_4.27.53_PM.png?ex=6a27860d&is=6a26348d&hm=591585e04a11c7ee38fd8fe4eba0eb4970b5a32a03ed861abf3f1b47e2d9ca0d&=&format=webp&quality=lossless&width=1658&height=1550" alt="Model 09">
+        <div class="slot-label-bar">Model — 09</div>
+      </div>
+      <div class="thumb-slot" onclick="openLightbox('https://media.discordapp.net/attachments/737759686605930578/1513381711000375417/Screenshot_2026-06-05_at_1.49.45_PM.png?ex=6a27860d&is=6a26348d&hm=ef6cd68e0f75b5053746936b27c8804168d5c66e6556c540ea8915864d57757f&=&format=webp&quality=lossless&width=1662&height=1550','Model — 10',getModelSlots(),9)">
+        <img src="https://media.discordapp.net/attachments/737759686605930578/1513381711000375417/Screenshot_2026-06-05_at_1.49.45_PM.png?ex=6a27860d&is=6a26348d&hm=ef6cd68e0f75b5053746936b27c8804168d5c66e6556c540ea8915864d57757f&=&format=webp&quality=lossless&width=1662&height=1550" alt="Model 10">
+        <div class="slot-label-bar">Model — 10</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <span class="section-num reveal">04 — Contact</span>
+  <div class="contact-inner">
+    <div>
+      <h2 class="section-title reveal">Get in<br><em>touch.</em></h2>
+      <p class="contact-text reveal">Open to commissions, collaborations, and team projects. Hit me up on Discord or check out my Roblox profile.</p>
+    </div>
+    <div class="contact-links reveal">
+      <a class="contact-link" href="#" target="_blank">
+        <span class="contact-link-icon">◈</span>
+        <div class="contact-link-info"><div class="contact-link-platform">Discord</div><div class="contact-link-name">PineappleJB</div></div>
+        <span class="contact-link-arrow">→</span>
+      </a>
+      <a class="contact-link" href="https://www.roblox.com/users/7391134430/profile?friendshipSourceType=PlayerSearch" target="_blank">
+        <span class="contact-link-icon">◯</span>
+        <div class="contact-link-info"><div class="contact-link-platform">Roblox</div><div class="contact-link-name">Tangent_8</div></div>
+        <span class="contact-link-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Tangent_8 — Roblox Developer Portfolio</span>
+  <span>2026</span>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+  <div id="lightboxContent"></div>
+  <div class="lightbox-meta">
+    <span class="lightbox-label" id="lightboxLabel"></span>
+    <div class="lightbox-nav">
+      <button onclick="lbNav(-1)">← Prev</button>
+      <button onclick="lbNav(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const cursor=document.getElementById('cursor');
+document.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';});
+document.addEventListener('mouseleave',()=>cursor.style.opacity='0');
+document.addEventListener('mouseenter',()=>cursor.style.opacity='1');
+
+function smoothScroll(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+
+function toggleProject(header){
+  const expand=header.nextElementSibling,toggle=header.querySelector('.project-toggle'),isOpen=expand.classList.contains('open');
+  document.querySelectorAll('.project-expand.open').forEach(e=>e.classList.remove('open'));
+  document.querySelectorAll('.project-toggle.open').forEach(t=>t.classList.remove('open'));
+  if(!isOpen){expand.classList.add('open');toggle.classList.add('open');}
+}
+
+function switchTab(name,tabEl){
+  document.querySelectorAll('.works-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.works-panel').forEach(p=>p.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+const ICON_SRCS=[
+  'https://media.discordapp.net/attachments/737759686605930578/1513372912227324005/image.png?ex=6a277ddb&is=6a262c5b&hm=bae811151b6e647a4722b3907f74266291262a5f21614bb595737b3d071fca52&=&format=webp&quality=lossless&width=1464&height=1452',
+  'https://media.discordapp.net/attachments/737759686605930578/1513372786851188806/image.png?ex=6a277dbd&is=6a262c3d&hm=e046023b9919050dea4712c894c06cc74d2d949d2a70bf92e08a41a1211f1454&=&format=webp&quality=lossless&width=1116&height=1120',
+  'https://media.discordapp.net/attachments/737759686605930578/1513372670832672908/image.png?ex=6a277da1&is=6a262c21&hm=6bf853156e965be958034b9d59898b5746049a34c39fcb69ce9dd669cdd18d67&=&format=webp&quality=lossless&width=1556&height=1548',
+  'https://media.discordapp.net/attachments/737759686605930578/1513372607796478074/image.png?ex=6a277d92&is=6a262c12&hm=fd4b92b11ec5a596b61e3ad46c11964447e1c35256ccfb8b42849ee8a4deb2c7&=&format=webp&quality=lossless&width=1548&height=1540',
+  'https://media.discordapp.net/attachments/737759686605930578/1513372537227051099/image.png?ex=6a277d81&is=6a262c01&hm=1f805a5165d4781499172a443aea697b0d152bace2705f834e6f2d2953a7796f&=&format=webp&quality=lossless&width=1552&height=1544',
+  'https://media.discordapp.net/attachments/737759686605930578/1513366200174776491/Untitled_Artwork_15.png?ex=6a27779b&is=6a26261b&hm=3531a6b1ba11952d86db93d02da4b07206c6d802daa3554892745bd12a6f8e99&=&format=webp&quality=lossless&width=700&height=700'
+];
+const THUMB_SRCS=[
+  'https://media.discordapp.net/attachments/737759686605930578/1513364735972610208/image.png?ex=6a27763e&is=6a2624be&hm=28986b88dd57d053aecbba734b0fd832284720d7d98000b0f7ac4630b06d7d58&=&format=webp&quality=lossless&width=800&height=448',
+  'https://media.discordapp.net/attachments/737759686605930578/1513373488369500176/image.png?ex=6a277e64&is=6a262ce4&hm=24897e1f67472be1a79c4264347b89304fc19f7cdd3ebd64cfad32b57b724231&=&format=webp&quality=lossless&width=2616&height=1436',
+  'https://media.discordapp.net/attachments/737759686605930578/1513373771237687507/image.png?ex=6a277ea8&is=6a262d28&hm=05f600b8acaf425c2d164143e83eb37e28ffd66ab55e29a05e7ef775914896aa&=&format=webp&quality=lossless&width=2548&height=1428',
+  'https://media.discordapp.net/attachments/737759686605930578/1513374074020040764/image.png?ex=6a277ef0&is=6a262d70&hm=51fa87b1bdaf51f1d99ce26965fa9584ea13cffcbdc228347598bcdc9d0df329&=&format=webp&quality=lossless&width=2548&height=1428'
+];
+const UI_SRCS=[
+  'https://media.discordapp.net/attachments/737759686605930578/1513378266898104420/3da64fb2d9ce59c175d9d449d13cb692.png?ex=6a2782d8&is=6a263158&hm=9f512b6cb4758406c9410d7cb0b8e2968b3df1df04495b0d9d2429dd92ef9cb9&=&format=webp&quality=lossless&width=2048&height=1186',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378385299111946/f87dbf0377dff92748d30e2477b6fbd2.png?ex=6a2782f4&is=6a263174&hm=8e58b0b99cb049330daa0d3142bba08a2b2fa13163d0f75b3587f20b3a2f29e2&=&format=webp&quality=lossless&width=2048&height=1110',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378312913944710/9fba8896b628354569dee02135e7d998.png?ex=6a2782e3&is=6a263163&hm=9fa1ded691227fc262b9e7eba48c178530385f614eadf27929f7c91f1ef7f1d7&=&format=webp&quality=lossless&width=2048&height=1114',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378352449327174/4dd239c00fa822c891836099e9a10565.png?ex=6a2782ec&is=6a26316c&hm=5a021c48e556cfc3ea3afbbd447631987e875a3dc3068d1ce1932a5a3cb66faf&=&format=webp&quality=lossless&width=2048&height=1106',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378408271319183/e15dd2b89a82e316895010ab0eb0ed2c.png?ex=6a2782f9&is=6a263179&hm=4c830d6e2726a0e3b96ee70c6486204071bf8d7d96688b95e7db88cc31f8c785&=&format=webp&quality=lossless&width=2046&height=1104',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378526873649233/Screenshot_2026-06-07_at_11.02.50_PM.png?ex=6a278316&is=6a263196&hm=6b633c3ff9d4fe806ec061c5b40f278802c00b06ca5e17caa37186bf81bfe9b8&=&format=webp&quality=lossless&width=1882&height=1022',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378525862953153/Screenshot_2026-06-07_at_11.03.23_PM.png?ex=6a278315&is=6a263195&hm=ce9ada467ac64ec96f32699f292959f69463ea3f2e3cabebf08ca5485fcd7d3d&=&format=webp&quality=lossless&width=1882&height=1024',
+  'https://media.discordapp.net/attachments/737759686605930578/1513378524399013928/Screenshot_2026-06-07_at_11.03.38_PM.png?ex=6a278315&is=6a263195&hm=edcee0b077602c4203671ad09dbc4f551d50bf6294c57964840921dac715503f&=&format=webp&quality=lossless&width=1882&height=1014'
+];
+const MODEL_SRCS=[
+  'https://media.discordapp.net/attachments/737759686605930578/1513381711659143198/image.png?ex=6a27860d&is=6a26348d&hm=7bdf37ee884474e78fa9ecb7f4ec45d838612bb92f77b69384019602fffa6411&=&format=webp&quality=lossless&width=2694&height=1294',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381712606920804/image.png?ex=6a27860d&is=6a26348d&hm=69b035d859e9506d2df2b5eef2f3740d08448269be3ab1e4220feb333b2e3da3&=&format=webp&quality=lossless&width=2694&height=1294',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381713383002132/image.png?ex=6a27860d&is=6a26348d&hm=b1482a3887da526d6dce034f9e1d1741fdf8035e979e51d06b61b25e90e8ceb9&=&format=webp&quality=lossless&width=2694&height=1294',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381714053959872/image.png?ex=6a27860d&is=6a26348d&hm=06941cc6261bfb181ee3a9950dc3f88717fc7ee9a06572c2fe6b53181d70c557&=&format=webp&quality=lossless&width=2694&height=1296',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381714817454161/image.png?ex=6a27860e&is=6a26348e&hm=b9edb0c31076acf41fbb235bac69017047c28fda378ac9eef2e1b8439e9c54e6&=&format=webp&quality=lossless&width=2694&height=1294',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381715312246866/image.png?ex=6a27860e&is=6a26348e&hm=d4db07684bddea85216d32cb5179f22a1b53497168973dc2be0dcbfacb7e6ad5&=&format=webp&quality=lossless&width=2694&height=1296',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381715907973210/image.png?ex=6a27860e&is=6a26348e&hm=b20e585942983b06278258d7d873b874475ede2b28d86aea99e5ac99dfac4dd3&=&format=webp&quality=lossless&width=2694&height=1298',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381716600033420/image.png?ex=6a27860e&is=6a26348e&hm=93bb57987832a36be1547a57a6eeb2f9f07a8f024a1f870628527cfcade6d415&=&format=webp&quality=lossless&width=2694&height=1292',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381710602178781/Screenshot_2026-06-01_at_4.27.53_PM.png?ex=6a27860d&is=6a26348d&hm=591585e04a11c7ee38fd8fe4eba0eb4970b5a32a03ed861abf3f1b47e2d9ca0d&=&format=webp&quality=lossless&width=1658&height=1550',
+  'https://media.discordapp.net/attachments/737759686605930578/1513381711000375417/Screenshot_2026-06-05_at_1.49.45_PM.png?ex=6a27860d&is=6a26348d&hm=ef6cd68e0f75b5053746936b27c8804168d5c66e6556c540ea8915864d57757f&=&format=webp&quality=lossless&width=1662&height=1550'
+];
+function getIconSlots(){return ICON_SRCS.map((src,i)=>({src,label:`Icon — 0${i+1}`}));}
+function getThumbSlots(){return THUMB_SRCS.map((src,i)=>({src,label:`Thumbnail — 0${i+1}`}));}
+function getUISlots(){return UI_SRCS.map((src,i)=>({src,label:`UI Design — 0${i+1}`}));}
+function getModelSlots(){return MODEL_SRCS.map((src,i)=>({src,label:`Model — 0${i<9?'0':''}${i+1}`}));}
+
+let lbSlots=[],lbIndex=0;
+function openLightbox(src,label,slots,idx){
+  lbSlots=slots;lbIndex=idx;renderLb(src,label);
+  document.getElementById('lightbox').classList.add('active');
+}
+function renderLb(src,label){
+  document.getElementById('lightboxLabel').textContent=label;
+  document.getElementById('lightboxContent').innerHTML=src
+    ?`<img class="lightbox-img" src="${src}" alt="${label}">`
+    :`<div class="lightbox-placeholder">${label}</div>`;
+}
+function lbNav(dir){lbIndex=(lbIndex+dir+lbSlots.length)%lbSlots.length;const s=lbSlots[lbIndex];renderLb(s.src,s.label);}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();if(e.key==='ArrowRight')lbNav(1);if(e.key==='ArrowLeft')lbNav(-1);});
+document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLightbox();});
+
+const heroOrb=document.getElementById('heroOrb'),orbWrap=document.getElementById('hero-orb-wrap');
+document.addEventListener('mousemove',e=>{
+  const rect=orbWrap.getBoundingClientRect();
+  heroOrb.classList.toggle('glow',Math.hypot(e.clientX-(rect.left+rect.width/2),e.clientY-(rect.top+rect.height/2))<280);
+});
+
+const revObs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);revObs.unobserve(e.target);}});},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(r=>revObs.observe(r));
+
+document.querySelectorAll('.hero > *:not(#hero-orb-wrap)').forEach((el,i)=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)';
+  el.style.transition='opacity 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)';
+  setTimeout(()=>{el.style.opacity='1';el.style.transform='none';},200+i*140);
+});
+
+(function(){
+  const canvas=document.getElementById('intro-canvas'),introEl=document.getElementById('intro'),introText=document.getElementById('intro-text'),ctx=canvas.getContext('2d');
+  let W,H,cx,cy;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;cx=W/2;cy=H/2;}
+  resize();window.addEventListener('resize',resize);
+  const TOTAL=2800;let startTime=null;
+  const easeOutExpo=t=>t===1?1:1-Math.pow(2,-10*t);
+  const easeInOutCubic=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  function drawFrame(ts){
+    if(!startTime)startTime=ts;
+    const t=Math.min((ts-startTime)/TOTAL,1);
+    ctx.clearRect(0,0,W,H);
+    const p1=Math.min(t/0.55,1),maxR=Math.hypot(W,H)*0.85;
+    for(let i=0;i<6;i++){const rt=easeOutExpo(Math.max(0,p1-i*0.08)),r=rt*maxR*(0.18+i*0.16),a=(1-rt)*0.35;if(r>0&&a>0){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle=`rgba(240,237,232,${a})`;ctx.lineWidth=0.6;ctx.stroke();}}
+    if(p1<1){const sa=p1*Math.PI*3-Math.PI/2,sl=maxR*p1;ctx.save();ctx.translate(cx,cy);for(let i=0;i<30;i++){const a=sa-(i*0.04);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*sl,Math.sin(a)*sl);ctx.strokeStyle=`rgba(240,237,232,${(1-i/30)*0.15*p1})`;ctx.lineWidth=1;ctx.stroke();}ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(sa)*sl,Math.sin(sa)*sl);ctx.strokeStyle=`rgba(240,237,232,${0.45*(1-p1*0.5)})`;ctx.lineWidth=1;ctx.stroke();ctx.restore();}
+    const ca=easeOutExpo(Math.min(p1*2,1))*0.12;ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.strokeStyle=`rgba(240,237,232,${ca})`;ctx.lineWidth=0.5;ctx.stroke();ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,easeOutExpo(p1)*3,0,Math.PI*2);ctx.fillStyle=`rgba(240,237,232,${p1*0.8})`;ctx.fill();
+    if(t>0.42)introText.style.opacity=easeInOutCubic(Math.min((t-0.42)/0.28,1));
+    if(t>0.72){const fade=easeInOutCubic(Math.min((t-0.72)/0.28,1));ctx.fillStyle=`rgba(6,6,6,${fade})`;ctx.fillRect(0,0,W,H);}
+    if(t<1)requestAnimationFrame(drawFrame);
+    else{introEl.classList.add('fade-out');setTimeout(()=>introEl.classList.add('hidden'),850);}
+  }
+  requestAnimationFrame(drawFrame);
+})();
+</script>
+</body>
+</html>
